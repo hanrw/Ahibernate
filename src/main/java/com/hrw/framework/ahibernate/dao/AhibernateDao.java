@@ -186,4 +186,8 @@ public class AhibernateDao<T> {
         }
 
     }
+
+    public SQLiteDatabase getSQLiteDatabase() {
+        return db;
+    }
 }
