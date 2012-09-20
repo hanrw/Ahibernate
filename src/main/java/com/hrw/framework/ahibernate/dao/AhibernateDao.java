@@ -5,6 +5,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.log4j.Logger;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -21,6 +22,7 @@ import com.hrw.framework.ahibernate.sql.Update;
 import com.hrw.framework.ahibernate.table.TableUtils;
 
 public class AhibernateDao<T> {
+    private static Logger logger = Logger.getLogger(AhibernateDao.class);
     private static String EMPTY_SQL = "DELETE FROM ";
 
     private SQLiteDatabase db;
@@ -39,18 +41,15 @@ public class AhibernateDao<T> {
 
     public int insert(T entity) {
         if (entity == null) {
-            throw new InsertException();
+            throw new InsertException("insert entity can not be null");
         }
-
-        String sql;
-        sql = new Insert(entity).toStatementString();
-        Log.d(TAG, "insert sql:" + sql);
+        String sql = new Insert(entity).toStatementString();
+        logger.info(sql);
         SQLiteStatement stmt = null;
         try {
             stmt = db.compileStatement(sql);
             return (int) stmt.executeInsert();
         } catch (android.database.SQLException e) {
-            Log.e(TAG, "inserting to database failed: " + sql, e);
             return -1;
         } finally {
             if (stmt != null) {
