@@ -1,6 +1,7 @@
 
 package com.hrw.framework.ahibernate.dao;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,12 @@ public class AhibernateDao<T> {
 
     public AhibernateDao(SQLiteDatabase db) {
         this.db = db;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Class<T> getGenricTypeClass() {
+        return (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass())
+                .getActualTypeArguments()[0];
     }
 
     public int insert(T entity) {
@@ -59,8 +66,20 @@ public class AhibernateDao<T> {
         return queryList;
     }
 
+    /**
+     * query by entity if entity is null query for all.
+     * 
+     * @param entity
+     * @return List<T>
+     */
     public List<T> queryList(T entity) {
-        String sql = new Select(entity).toStatementString();
+        try {
+            entity = entity != null ? entity : (T) getGenricTypeClass().newInstance();
+        } catch (InstantiationException e) {
+        } catch (IllegalAccessException e) {
+        }
+        String sql = new Select(entity)
+                .toStatementString();
         Log.d(TAG, "query sql:" + sql);
         Cursor cursor = db.rawQuery(sql, null);
         EntityBuilder<T> builder = new EntityBuilder<T>(entity.getClass(), cursor);
