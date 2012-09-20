@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
 import com.hrw.framework.ahibernate.builder.EntityBuilder;
+import com.hrw.framework.ahibernate.exceptions.InsertException;
 import com.hrw.framework.ahibernate.sql.Delete;
 import com.hrw.framework.ahibernate.sql.Insert;
 import com.hrw.framework.ahibernate.sql.Operate;
@@ -37,14 +38,17 @@ public class AhibernateDao<T> {
     }
 
     public int insert(T entity) {
+        if (entity == null) {
+            throw new InsertException();
+        }
+
         String sql;
         sql = new Insert(entity).toStatementString();
         Log.d(TAG, "insert sql:" + sql);
         SQLiteStatement stmt = null;
         try {
             stmt = db.compileStatement(sql);
-            long rowId = stmt.executeInsert();
-            return 1;
+            return (int) stmt.executeInsert();
         } catch (android.database.SQLException e) {
             Log.e(TAG, "inserting to database failed: " + sql, e);
             return -1;

@@ -12,7 +12,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.view.ViewDebug.ExportedProperty;
 
+import com.hrw.framework.ahibernate.exceptions.InsertException;
 import com.hrw.framework.ahibernate.table.TableUtils;
 import com.hrw.framework.ahibernate.test.domain.Demo;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
@@ -62,10 +64,22 @@ public class AhibernateDaoTest {
     }
 
     @Test
-    public void should_return_1_demo_item() {
+    public void should_return_1_demo_item_if_query_null() {
         Demo entity = new Demo();
         dao.insert(entity);
-        assertThat(1, equalTo(dao.queryList(null).size()));
+        dao.insert(entity);
+        dao.insert(entity);
+        assertThat(3, equalTo(dao.queryList(null).size()));
+    }
+
+    @Test(expected = InsertException.class)
+    public void should_throw_exception_when_insert_null() {
+        dao.insert(null);
+    }
+
+    @Test
+    public void should_return_id_1() {
+        assertThat(1, equalTo(dao.insert(new Demo())));
     }
 
 }
