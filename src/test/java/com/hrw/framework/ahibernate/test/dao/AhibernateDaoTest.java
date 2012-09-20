@@ -12,11 +12,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.database.sqlite.SQLiteDatabase;
-import android.view.ViewDebug.ExportedProperty;
 
 import com.hrw.framework.ahibernate.exceptions.InsertException;
 import com.hrw.framework.ahibernate.table.TableUtils;
 import com.hrw.framework.ahibernate.test.domain.Demo;
+import com.hrw.framework.ahibernate.test.domain.DemoWithNoAnnotation;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.shadows.ShadowSQLiteDatabase;
 
@@ -28,10 +28,13 @@ public class AhibernateDaoTest {
 
     protected ShadowSQLiteDatabase shDatabase;
 
+    private DemoDaoWithNoAnnotation demDaoWithNoAnnotation;
+
     @Before
     public void setUp() {
         database = SQLiteDatabase.openDatabase("path", null, 0);
         dao = new DemoAhibernateDao(database);
+        demDaoWithNoAnnotation = new DemoDaoWithNoAnnotation(database);
         TableUtils.createTable(database, true, Demo.class);
     }
 
@@ -49,13 +52,6 @@ public class AhibernateDaoTest {
     @Test
     public void should_return_sqlitedatabase() throws Exception {
         assertThat(dao.getSQLiteDatabase(), notNullValue());
-    }
-
-    @Test
-    public void should_return_true_when_create_table_sql() throws Exception {
-        Demo entity = new Demo();
-        dao.insert(entity);
-        assertThat(1, equalTo(dao.queryList(entity).size()));
     }
 
     @Test
@@ -80,6 +76,12 @@ public class AhibernateDaoTest {
     @Test
     public void should_return_id_1() {
         assertThat(1, equalTo(dao.insert(new Demo())));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void should_throw_exception_when_no_annotation() {
+        demDaoWithNoAnnotation.insert(new DemoWithNoAnnotation());
+
     }
 
 }
