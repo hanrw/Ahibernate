@@ -29,15 +29,12 @@ public class AnnotationReaderTest {
     }
 
     @Test
-    public void should_return_not_null_when_get_id_annotation() {
+    public void should_return_not_null_when_get_id_annotation() throws SecurityException,
+            NoSuchFieldException {
         Field idField;
-        try {
-            idField = Demo.class.getDeclaredField("id");
-            assertNotNull(idField);
-            mAnnotationReader = new AnnotationReader(idField);
-            assertNotNull(mAnnotationReader.getAnnotation(Id.class));
-        } catch (SecurityException e) {
-        } catch (NoSuchFieldException e) {
-        }
+        idField = Demo.class.getDeclaredField("id");
+        assertNotNull(idField);
+        mAnnotationReader = new AnnotationReader(idField);
+        assertNotNull(mAnnotationReader.getAnnotation(Id.class));
     }
 }
