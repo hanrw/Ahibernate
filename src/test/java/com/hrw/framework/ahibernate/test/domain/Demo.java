@@ -9,8 +9,18 @@ import com.hrw.framework.ahibernate.annotation.Table;
 public class Demo {
     @Id
     private Long id;
-    @Column(name = "audio_name")
+    @Column(name = "demo_name")
     private String name;
+
+    private String gender;
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
 
     public Long getId() {
         return id;
