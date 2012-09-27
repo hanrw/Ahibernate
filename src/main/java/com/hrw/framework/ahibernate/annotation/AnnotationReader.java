@@ -31,11 +31,8 @@ public class AnnotationReader {
         annotationToXml = new HashMap<Class, String>();
         annotationToXml.put(Table.class, "table");
         annotationToXml.put(Id.class, "id");
-<<<<<<< HEAD
         annotationToXml.put(Column.class, "column");
-=======
-        annotationToXml.put(Column.class, "colum");
->>>>>>> 5affce6a4f276cd50abd1689ccb64eb3af376949
+
     }
 
     private enum PropertyType {
