@@ -1,7 +1,8 @@
 
 package com.hrw.framework.ahibernate.test.annotations;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
 
 import java.lang.reflect.Field;
 
@@ -36,5 +37,11 @@ public class AnnotationReaderTest {
         assertNotNull(idField);
         mAnnotationReader = new AnnotationReader(idField);
         assertNotNull(mAnnotationReader.getAnnotation(Id.class));
+    }
+
+    @Test
+    public void should_return_table_annotation() {
+        mAnnotationReader = new AnnotationReader(Demo.class);
+        assertNotNull(equalTo(mAnnotationReader.getAnnotation(Table.class)));
     }
 }

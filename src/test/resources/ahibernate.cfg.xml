@@ -1,0 +1,3 @@
+<ahibernate-configuration>
+    <mapping class="com.hrw.framework.ahibernate.test.domain.Demo" />
+</ahibernate-configuration>

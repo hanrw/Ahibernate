@@ -14,5 +14,7 @@ public class DemoAhibernateDao extends AhibernateDao<Demo> {
         super(db);
     }
 
+    
+
 
 }

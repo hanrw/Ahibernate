@@ -12,24 +12,30 @@ import java.util.Map;
 public class AnnotationReader {
 
     private static HashMap<Class, String> annotationToXml;
+
     private AnnotatedElement element;
+
     private String className;
+
     private String propertyName;
+
     private transient Map<Class, Annotation> annotationsMap;
+
     private transient Annotation[] annotations;
+
     private PropertyType propertyType;
+
     private AccessibleObject mirroredAttribute;
 
     static {
         annotationToXml = new HashMap<Class, String>();
         annotationToXml.put(Table.class, "table");
         annotationToXml.put(Id.class, "id");
+        annotationToXml.put(Column.class, "column");
     }
 
     private enum PropertyType {
-        PROPERTY,
-        FIELD,
-        METHOD
+        PROPERTY, FIELD, METHOD
     }
 
     public AnnotationReader(AnnotatedElement el) {
@@ -43,9 +49,7 @@ public class AnnotationReader {
             propertyName = field.getName();
             propertyType = PropertyType.FIELD;
             String expectedGetter = "get" + Character.toUpperCase(propertyName.charAt(0))
-                    + propertyName.substring(
-                            1
-                            );
+                    + propertyName.substring(1);
             try {
                 mirroredAttribute = field.getDeclaringClass().getDeclaredMethod(expectedGetter);
             } catch (NoSuchMethodException e) {
@@ -54,17 +58,21 @@ public class AnnotationReader {
         }
     }
 
-    public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
-        initAnnotations();
-        return (T) annotationsMap.get(annotationType);
-    }
+    // public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
+    // initAnnotations();
+    // return (T) annotationsMap.get(annotationType);
+    // }
 
-    private Annotation[] getJavaAnnotations() {
+    public Annotation[] getAnnotations() {
         return element.getAnnotations();
     }
 
-    private <T extends Annotation> T getJavaAnnotation(Class<T> annotationType) {
+    public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
         return element.getAnnotation(annotationType);
+    }
+
+    public <T extends Annotation> boolean isAnnotationPresent(Class<T> annotationType) {
+        return element.isAnnotationPresent(annotationType);
     }
 
     /**
@@ -75,18 +83,18 @@ public class AnnotationReader {
      * @param annotation The annotation to add to the list.
      * @return The annotation which was added to the list or {@code null}.
      */
-    private Annotation addIfNotNull(List<Annotation> annotationList, Annotation annotation) {
+    public Annotation addIfNotNull(List<Annotation> annotationList, Annotation annotation) {
         if (annotation != null) {
             annotationList.add(annotation);
         }
         return annotation;
     }
 
-    private void initAnnotations() {
+    public void initAnnotations() {
         if (annotations == null) {
             // is a class
             if (className != null && propertyName == null) {
-                Annotation[] annotations = getJavaAnnotations();
+                Annotation[] annotations = getAnnotations();
                 annotationsMap = new HashMap<Class, Annotation>(annotations.length + 5);
                 for (Annotation annotation : annotations) {
                     if (annotationToXml.containsKey(annotation.annotationType())) {
@@ -95,7 +103,7 @@ public class AnnotationReader {
                 }
 
             } else {
-                this.annotations = getJavaAnnotations();
+                this.annotations = getAnnotations();
                 annotationsMap = new HashMap<Class, Annotation>(annotations.length + 5);
                 for (Annotation annotation : annotations) {
                     if (annotationToXml.containsKey(annotation.annotationType())) {

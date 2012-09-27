@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.hrw.framework.ahibernate.exceptions.InsertException;
+import com.hrw.framework.ahibernate.exceptions.MappingException;
 import com.hrw.framework.ahibernate.table.TableUtils;
 import com.hrw.framework.ahibernate.test.domain.Demo;
 import com.hrw.framework.ahibernate.test.domain.DemoWithNoAnnotation;
@@ -68,14 +69,24 @@ public class AhibernateDaoTest {
         assertThat(3, equalTo(dao.queryList(null).size()));
     }
 
-    @Test(expected = InsertException.class)
+    @Test(expected = AssertionError.class)
     public void should_throw_exception_when_insert_null() {
         dao.insert(null);
     }
 
     @Test
+    public void should_return_not_null_when_get_cfg() {
+        assertNotNull(dao.getConfiguration());
+    }
+
+    @Test
     public void should_return_id_1() {
         assertThat(1, equalTo(dao.insert(new Demo())));
+    }
+
+    @Test(expected = MappingException.class)
+    public void should_return_mappingException() {
+        dao.insert(new DemoWithNoAnnotation());
     }
 
     @Test(expected = RuntimeException.class)

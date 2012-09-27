@@ -2,9 +2,11 @@
 package com.hrw.framework.ahibernate.dao;
 
 import java.lang.reflect.ParameterizedType;
+import static org.junit.Assert.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.log4j.Logger;
 
 import android.database.Cursor;
@@ -13,7 +15,9 @@ import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
 import com.hrw.framework.ahibernate.builder.EntityBuilder;
+import com.hrw.framework.ahibernate.cfg.Configuration;
 import com.hrw.framework.ahibernate.exceptions.InsertException;
+import com.hrw.framework.ahibernate.exceptions.MappingException;
 import com.hrw.framework.ahibernate.sql.Delete;
 import com.hrw.framework.ahibernate.sql.Insert;
 import com.hrw.framework.ahibernate.sql.Operate;
@@ -23,14 +27,22 @@ import com.hrw.framework.ahibernate.table.TableUtils;
 
 public class AhibernateDao<T> {
     private static Logger logger = Logger.getLogger(AhibernateDao.class);
+
     private static String EMPTY_SQL = "DELETE FROM ";
 
     private SQLiteDatabase db;
 
     private String TAG = "AhibernateDao";
 
+    private Configuration cfg;
+
     public AhibernateDao(SQLiteDatabase db) {
         this.db = db;
+        this.cfg = Configuration.getInstance().configure();
+    }
+
+    public Configuration getConfiguration() {
+        return cfg;
     }
 
     @SuppressWarnings("unchecked")
@@ -40,8 +52,9 @@ public class AhibernateDao<T> {
     }
 
     public int insert(T entity) {
-        if (entity == null) {
-            throw new InsertException("insert entity can not be null");
+        assertNotNull(entity);
+        if (null == cfg.getEntityPersister(entity.getClass().getName())) {
+            throw new MappingException("Unknown entity: " + entity.getClass().getName());
         }
         String sql = new Insert(entity).toStatementString();
         logger.info(sql);
@@ -81,8 +94,7 @@ public class AhibernateDao<T> {
         } catch (InstantiationException e) {
         } catch (IllegalAccessException e) {
         }
-        String sql = new Select(entity)
-                .toStatementString();
+        String sql = new Select(entity).toStatementString();
         Log.d(TAG, "query sql:" + sql);
         Cursor cursor = db.rawQuery(sql, null);
         EntityBuilder<T> builder = new EntityBuilder<T>(entity.getClass(), cursor);
