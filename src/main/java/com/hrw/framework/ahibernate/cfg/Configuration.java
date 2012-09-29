@@ -3,6 +3,8 @@ package com.hrw.framework.ahibernate.cfg;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,9 +19,11 @@ import org.xml.sax.InputSource;
 
 import android.util.Log;
 
+import com.hrw.framework.ahibernate.annotation.AnnotationReader;
 import com.hrw.framework.ahibernate.annotation.Table;
 import com.hrw.framework.ahibernate.exceptions.AhibernateException;
 import com.hrw.framework.ahibernate.exceptions.MappingException;
+import com.hrw.framework.ahibernate.mapping.Column;
 import com.hrw.framework.ahibernate.util.ConfigHelper;
 import com.hrw.framework.ahibernate.util.ReflectHelper;
 import com.hrw.framework.ahibernate.util.XMLHelper;
@@ -31,14 +35,11 @@ public class Configuration {
 
     protected transient XMLHelper xmlHelper;
 
-    private final transient Map<String, Class> entityPersisters;
+    private transient Map<String, Class> entityPersisters;
+
+    private ColumnsBuilder columnsBuilder;
 
     private static Logger LOG = Logger.getLogger(Configuration.class);
-
-    private Configuration() {
-        xmlHelper = new XMLHelper();
-        entityPersisters = new HashMap<String, Class>();
-    }
 
     public Map<String, Class> getEntityPersisters() {
         return entityPersisters;
@@ -58,8 +59,15 @@ public class Configuration {
      * @see #configure(String)
      */
     public Configuration configure() throws AhibernateException {
+        reset();
         configure("/ahibernate.cfg.xml");
         return this;
+    }
+
+    private void reset() {
+        xmlHelper = new XMLHelper();
+        entityPersisters = new HashMap<String, Class>();
+        columnsBuilder = new ColumnsBuilder();
     }
 
     public Configuration configure(String resource) throws AhibernateException {
@@ -108,6 +116,7 @@ public class Configuration {
                 Class clazz = ReflectHelper.classForName(className);
                 if (clazz.isAnnotationPresent(Table.class)) {
                     addEntityPersister(ReflectHelper.classForName(className));
+                    buildMappings(clazz);
                 }
             } catch (Exception e) {
                 throw new MappingException("Unable to load class [ " + className
@@ -116,6 +125,23 @@ public class Configuration {
 
         }
         return this;
+    }
+
+    private void buildMappings(Class clazz) {
+        buildColumns(clazz);
+    }
+
+    private void buildColumns(Class clazz) {
+        for (Field f : clazz.getDeclaredFields()) {
+            if (f.isAnnotationPresent(com.hrw.framework.ahibernate.annotation.Column.class)
+                    || f.isAnnotationPresent(com.hrw.framework.ahibernate.annotation.Id.class)) {
+                AnnotationReader ar = new AnnotationReader(f);
+                Column column = new Column();
+                column.setName(ar.getAnnotationName());
+                columnsBuilder.addColumn(column);
+            }
+        }
+
     }
 
     private void addEntityPersister(Class classForName) {
@@ -127,5 +153,9 @@ public class Configuration {
             configuration = new Configuration();
         }
         return configuration;
+    }
+
+    public ColumnsBuilder getColumnBuilder() {
+        return columnsBuilder;
     }
 }

@@ -17,6 +17,21 @@ public class AnnotationReader {
 
     private String className;
 
+    private String annotationName;
+    private String annotationValue;
+
+    public String getPropertyName() {
+        return propertyName;
+    }
+
+    public String getAnnotationName() {
+        return annotationName;
+    }
+
+    public String getAnnotationValue() {
+        return annotationValue;
+    }
+
     private String propertyName;
 
     private transient Map<Class, Annotation> annotationsMap;
@@ -45,6 +60,14 @@ public class AnnotationReader {
             Class clazz = (Class) el;
             className = clazz.getName();
         } else if (el instanceof Field) {
+            if (el.isAnnotationPresent(Id.class)) {
+                Id id = el.getAnnotation(Id.class);
+                annotationName = id.name();
+            }
+            if (el.isAnnotationPresent(Column.class)) {
+                Column column = el.getAnnotation(Column.class);
+                annotationName = column.name();
+            }
             Field field = (Field) el;
             className = field.getDeclaringClass().getName();
             propertyName = field.getName();
@@ -91,28 +114,28 @@ public class AnnotationReader {
         return annotation;
     }
 
-    public void initAnnotations() {
-        if (annotations == null) {
-            // is a class
-            if (className != null && propertyName == null) {
-                Annotation[] annotations = getAnnotations();
-                annotationsMap = new HashMap<Class, Annotation>(annotations.length + 5);
-                for (Annotation annotation : annotations) {
-                    if (annotationToXml.containsKey(annotation.annotationType())) {
-                        annotationsMap.put(annotation.annotationType(), annotation);
-                    }
-                }
-
-            } else {
-                this.annotations = getAnnotations();
-                annotationsMap = new HashMap<Class, Annotation>(annotations.length + 5);
-                for (Annotation annotation : annotations) {
-                    if (annotationToXml.containsKey(annotation.annotationType())) {
-                        annotationsMap.put(annotation.annotationType(), annotation);
-                    }
-                }
-            }
-        }
-    }
+    // public void initAnnotations() {
+    // if (annotations == null) {
+    // // is a class
+    // if (className != null && propertyName == null) {
+    // Annotation[] annotations = getAnnotations();
+    // annotationsMap = new HashMap<Class, Annotation>(annotations.length + 5);
+    // for (Annotation annotation : annotations) {
+    // if (annotationToXml.containsKey(annotation.annotationType())) {
+    // annotationsMap.put(annotation.annotationType(), annotation);
+    // }
+    // }
+    //
+    // } else {
+    // this.annotations = getAnnotations();
+    // annotationsMap = new HashMap<Class, Annotation>(annotations.length + 5);
+    // for (Annotation annotation : annotations) {
+    // if (annotationToXml.containsKey(annotation.annotationType())) {
+    // annotationsMap.put(annotation.annotationType(), annotation);
+    // }
+    // }
+    // }
+    // }
+    // }
 
 }
