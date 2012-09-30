@@ -1,8 +1,11 @@
 
 package com.hrw.framework.ahibernate.dao;
 
+import static org.junit.Assert.assertNotNull;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import static org.junit.Assert.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -14,12 +17,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
+import com.hrw.framework.ahibernate.annotation.Id;
+import com.hrw.framework.ahibernate.annotation.OneToMany;
 import com.hrw.framework.ahibernate.builder.EntityBuilder;
 import com.hrw.framework.ahibernate.cfg.Configuration;
-import com.hrw.framework.ahibernate.exceptions.InsertException;
 import com.hrw.framework.ahibernate.exceptions.MappingException;
+import com.hrw.framework.ahibernate.mapping.Column;
+import com.hrw.framework.ahibernate.mapping.Table;
 import com.hrw.framework.ahibernate.sql.Delete;
 import com.hrw.framework.ahibernate.sql.Insert;
+import com.hrw.framework.ahibernate.sql.InsertNew;
 import com.hrw.framework.ahibernate.sql.Operate;
 import com.hrw.framework.ahibernate.sql.Select;
 import com.hrw.framework.ahibernate.sql.Update;
@@ -56,7 +63,14 @@ public class AhibernateDao<T> {
         if (null == cfg.getEntityPersister(entity.getClass().getName())) {
             throw new MappingException("Unknown entity: " + entity.getClass().getName());
         }
-        String sql = new Insert(entity).toStatementString();
+        Table table = cfg.getTable(entity.getClass().getName());
+        InsertNew insert = new InsertNew().setTableName(table.getName());
+
+        for (Column col : table.getColumns().values()) {
+            insert.addColumn(col.getName(), ColumnValueByColumnName(entity, col));
+        }
+        // String sql = new Insert(entity).toStatementString();
+        String sql = insert.toStatementString();
         logger.info(sql);
         SQLiteStatement stmt = null;
         try {
@@ -68,6 +82,17 @@ public class AhibernateDao<T> {
             if (stmt != null) {
                 stmt.close();
             }
+        }
+    }
+
+    public Object ColumnValueByColumnName(T entity, Column colmun) {
+        Field field;
+        try {
+            field = entity.getClass().getDeclaredField(colmun.getFieldName());
+            field.setAccessible(true);
+            return field.get(entity);
+        } catch (Exception e) {
+            return null;
         }
     }
 

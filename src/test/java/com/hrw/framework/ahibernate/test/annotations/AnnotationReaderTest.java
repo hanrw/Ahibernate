@@ -73,7 +73,7 @@ public class AnnotationReaderTest {
     public void should_return_empty_when_get_id_annotation_name() throws SecurityException,
             NoSuchFieldException {
         initAnnotationReaderForField("id");
-        assertThat("", equalTo(mAnnotationReader.getAnnotation(Id.class).name()));
+        assertThat("id", equalTo(mAnnotationReader.getAnnotation(Id.class).name()));
     }
 
     @Test

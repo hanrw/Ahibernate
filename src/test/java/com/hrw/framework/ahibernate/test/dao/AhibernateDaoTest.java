@@ -81,7 +81,10 @@ public class AhibernateDaoTest {
 
     @Test
     public void should_return_id_1() {
-        assertThat(1, equalTo(dao.insert(new Demo())));
+        Demo demo = new Demo();
+        demo.setId(1l);
+        demo.setName("demo");
+        assertThat(1, equalTo(dao.insert(demo)));
     }
 
     @Test(expected = MappingException.class)
@@ -92,7 +95,6 @@ public class AhibernateDaoTest {
     @Test(expected = RuntimeException.class)
     public void should_throw_exception_when_no_annotation() {
         demDaoWithNoAnnotation.insert(new DemoWithNoAnnotation());
-
     }
 
 }

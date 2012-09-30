@@ -1,3 +1,4 @@
 <ahibernate-configuration>
     <mapping class="com.hrw.framework.ahibernate.test.domain.Demo" />
+    <mapping class="com.hrw.framework.ahibernate.test.domain.Book" />
 </ahibernate-configuration>
