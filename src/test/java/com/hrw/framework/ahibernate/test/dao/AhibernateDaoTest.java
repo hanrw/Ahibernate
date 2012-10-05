@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 
 import android.database.sqlite.SQLiteDatabase;
 
-import com.hrw.framework.ahibernate.exceptions.InsertException;
 import com.hrw.framework.ahibernate.exceptions.MappingException;
 import com.hrw.framework.ahibernate.table.TableUtils;
 import com.hrw.framework.ahibernate.test.domain.Demo;
@@ -67,11 +66,6 @@ public class AhibernateDaoTest {
         dao.insert(entity);
         dao.insert(entity);
         assertThat(3, equalTo(dao.queryList(null).size()));
-    }
-
-    @Test(expected = AssertionError.class)
-    public void should_throw_exception_when_insert_null() {
-        dao.insert(null);
     }
 
     @Test

@@ -3,15 +3,12 @@ package com.hrw.framework.ahibernate.util;
 
 import java.io.InputStream;
 
-import org.apache.log4j.Logger;
-
 import android.os.Environment;
 
 import com.hrw.framework.ahibernate.exceptions.AhibernateException;
 
 public class ConfigHelper {
 
-    private static Logger LOG = Logger.getLogger(ConfigHelper.class);
 
     public static InputStream getResourceAsStream(String resource) {
         String stripped = resource.startsWith("/") ? resource.substring(1) : resource;

@@ -1,24 +1,17 @@
 
 package com.hrw.framework.ahibernate.dao;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
-import com.hrw.framework.ahibernate.annotation.Id;
-import com.hrw.framework.ahibernate.annotation.OneToMany;
 import com.hrw.framework.ahibernate.builder.EntityBuilder;
 import com.hrw.framework.ahibernate.cfg.Configuration;
 import com.hrw.framework.ahibernate.exceptions.MappingException;
@@ -26,15 +19,12 @@ import com.hrw.framework.ahibernate.mapping.Column;
 import com.hrw.framework.ahibernate.mapping.Table;
 import com.hrw.framework.ahibernate.sql.Delete;
 import com.hrw.framework.ahibernate.sql.Insert;
-import com.hrw.framework.ahibernate.sql.Insert;
 import com.hrw.framework.ahibernate.sql.Operate;
 import com.hrw.framework.ahibernate.sql.Select;
 import com.hrw.framework.ahibernate.sql.Update;
 import com.hrw.framework.ahibernate.table.TableUtils;
 
 public class AhibernateDao<T> {
-    private static Logger logger = Logger.getLogger(AhibernateDao.class);
-
     private static String EMPTY_SQL = "DELETE FROM ";
 
     private SQLiteDatabase db;
@@ -59,7 +49,6 @@ public class AhibernateDao<T> {
     }
 
     public int insert(T entity) {
-        assertNotNull(entity);
         if (null == cfg.getEntityPersister(entity.getClass().getName())) {
             throw new MappingException("Unknown entity: " + entity.getClass().getName());
         }
@@ -71,7 +60,7 @@ public class AhibernateDao<T> {
         }
         // String sql = new Insert(entity).toStatementString();
         String sql = insert.toStatementString();
-        logger.info(sql);
+        Log.d(TAG, "query sql:" + sql);
         SQLiteStatement stmt = null;
         try {
             stmt = db.compileStatement(sql);

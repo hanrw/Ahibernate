@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -39,15 +38,37 @@ public class Configuration {
 
     private Map<String, Table> tables;
 
-    private static Logger LOG = Logger.getLogger(Configuration.class);
+//    private Logger mLog;
 
     public Map<String, Class> getEntityPersisters() {
         return entityPersisters;
     }
 
+    // public Logger getLog() {
+    // return mLog;
+    // }
+
     public Class getEntityPersister(String key) {
         return entityPersisters.get(key);
     }
+    
+//    private void configureLog4j() {
+//
+//        // set file name
+//        String fileName = Environment.getExternalStorageDirectory() + "/"
+//                + "log4j.log";
+//        // set log line pattern
+//        String filePattern = "%d - [%c] - %p : %m%n";
+//        // set max. number of backed up log files
+//        int maxBackupSize = 10;
+//        // set max. size of log file
+//        long maxFileSize = 1024 * 1024;
+//
+//        // configure
+//        Log4jHelper
+//                .Configure(fileName, filePattern, maxBackupSize, maxFileSize);
+//        mLog = Log4jHelper.getLogger(Configuration.class.getName());
+//    }
 
     /**
      * Use the mappings and properties specified in an application resource
@@ -59,6 +80,7 @@ public class Configuration {
      * @see #configure(String)
      */
     public Configuration configure() throws AhibernateException {
+//        configureLog4j();
         reset();
         configure("/ahibernate.cfg.xml");
         return this;
@@ -72,15 +94,15 @@ public class Configuration {
 
     public Configuration configure(String resource) throws AhibernateException {
         if (DEBUG) {
-            LOG.info("configure resource:" + resource);
-        }
+//             mLog.info("configure resource:" + resource);
+         }
         InputStream stream = getConfigurationInputStream(resource);
         return doConfigure(stream, resource);
     }
 
     protected InputStream getConfigurationInputStream(String resource) throws AhibernateException {
         if (DEBUG) {
-            LOG.info("getConfigurationInputStream resource:" + resource);
+            // mLog.info("getConfigurationInputStream resource:" + resource);
         }
         return ConfigHelper.getResourceAsStream(resource);
     }
