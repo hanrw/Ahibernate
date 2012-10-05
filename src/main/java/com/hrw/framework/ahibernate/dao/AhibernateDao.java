@@ -26,7 +26,7 @@ import com.hrw.framework.ahibernate.mapping.Column;
 import com.hrw.framework.ahibernate.mapping.Table;
 import com.hrw.framework.ahibernate.sql.Delete;
 import com.hrw.framework.ahibernate.sql.Insert;
-import com.hrw.framework.ahibernate.sql.InsertNew;
+import com.hrw.framework.ahibernate.sql.Insert;
 import com.hrw.framework.ahibernate.sql.Operate;
 import com.hrw.framework.ahibernate.sql.Select;
 import com.hrw.framework.ahibernate.sql.Update;
@@ -64,7 +64,7 @@ public class AhibernateDao<T> {
             throw new MappingException("Unknown entity: " + entity.getClass().getName());
         }
         Table table = cfg.getTable(entity.getClass().getName());
-        InsertNew insert = new InsertNew().setTableName(table.getName());
+        Insert insert = new Insert().setTableName(table.getName());
 
         for (Column col : table.getColumns().values()) {
             insert.addColumn(col.getName(), ColumnValueByColumnName(entity, col));
