@@ -24,7 +24,7 @@ public class Log4jHelperTest {
         long maxFileSize = 1024 * 1024;
 
         // configure
-        Log4jHelper.Configure(fileName, filePattern, maxBackupSize, maxFileSize);
+        Log4jHelper.configure(fileName, filePattern, maxBackupSize, maxFileSize);
     }
 
     @Before

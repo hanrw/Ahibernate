@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -38,7 +39,7 @@ public class Configuration {
 
     private Map<String, Table> tables;
 
-//    private Logger mLog;
+    private Logger mLog;
 
     public Map<String, Class> getEntityPersisters() {
         return entityPersisters;
@@ -51,24 +52,6 @@ public class Configuration {
     public Class getEntityPersister(String key) {
         return entityPersisters.get(key);
     }
-    
-//    private void configureLog4j() {
-//
-//        // set file name
-//        String fileName = Environment.getExternalStorageDirectory() + "/"
-//                + "log4j.log";
-//        // set log line pattern
-//        String filePattern = "%d - [%c] - %p : %m%n";
-//        // set max. number of backed up log files
-//        int maxBackupSize = 10;
-//        // set max. size of log file
-//        long maxFileSize = 1024 * 1024;
-//
-//        // configure
-//        Log4jHelper
-//                .Configure(fileName, filePattern, maxBackupSize, maxFileSize);
-//        mLog = Log4jHelper.getLogger(Configuration.class.getName());
-//    }
 
     /**
      * Use the mappings and properties specified in an application resource
@@ -80,7 +63,9 @@ public class Configuration {
      * @see #configure(String)
      */
     public Configuration configure() throws AhibernateException {
-//        configureLog4j();
+        //only for android need do this
+//        Log4jHelper.configureLog4j();
+        mLog = Logger.getLogger(Configuration.class);
         reset();
         configure("/ahibernate.cfg.xml");
         return this;
@@ -94,8 +79,8 @@ public class Configuration {
 
     public Configuration configure(String resource) throws AhibernateException {
         if (DEBUG) {
-//             mLog.info("configure resource:" + resource);
-         }
+            mLog.info("configure resource:" + resource);
+        }
         InputStream stream = getConfigurationInputStream(resource);
         return doConfigure(stream, resource);
     }
