@@ -3,8 +3,7 @@ package com.hrw.framework.ahibernate.test.dao;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -66,6 +65,19 @@ public class AhibernateDaoTest {
         dao.insert(entity);
         dao.insert(entity);
         assertThat(3, equalTo(dao.queryList(null).size()));
+    }
+
+    // test get entity.
+    @Test
+    public void should_return_null_when_not_found_entity() {
+        assertNull(dao.get(Demo.class, 1));
+    }
+
+    @Test
+    public void should_return_not_null_when_found_entity() {
+        Demo entity = new Demo();
+        assertEquals(1, dao.insert(entity));
+        assertNotNull(dao.get(Demo.class, 1));
     }
 
     @Test

@@ -1,11 +1,14 @@
 
 package com.hrw.framework.ahibernate.dao;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.log4j.Logger;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -21,6 +24,7 @@ import com.hrw.framework.ahibernate.sql.Delete;
 import com.hrw.framework.ahibernate.sql.Insert;
 import com.hrw.framework.ahibernate.sql.Operate;
 import com.hrw.framework.ahibernate.sql.Select;
+import com.hrw.framework.ahibernate.sql.SelectNew;
 import com.hrw.framework.ahibernate.sql.Update;
 import com.hrw.framework.ahibernate.table.TableUtils;
 
@@ -28,6 +32,8 @@ public class AhibernateDao<T> {
     private static String EMPTY_SQL = "DELETE FROM ";
 
     private SQLiteDatabase db;
+
+    private Logger log = Logger.getLogger(Configuration.class);
 
     private String TAG = "AhibernateDao";
 
@@ -56,11 +62,10 @@ public class AhibernateDao<T> {
         Insert insert = new Insert().setTableName(table.getName());
 
         for (Column col : table.getColumns().values()) {
-            insert.addColumn(col.getName(), ColumnValueByColumnName(entity, col));
+            insert.addColumn(col.getName(), getColumnValueByColumnName(entity, col));
         }
-        // String sql = new Insert(entity).toStatementString();
         String sql = insert.toStatementString();
-        Log.d(TAG, "query sql:" + sql);
+        log.info("insert entity " + entity.getClass().getName() + ":" + sql);
         SQLiteStatement stmt = null;
         try {
             stmt = db.compileStatement(sql);
@@ -74,7 +79,25 @@ public class AhibernateDao<T> {
         }
     }
 
-    public Object ColumnValueByColumnName(T entity, Column colmun) {
+    public Object get(Class entityClass, Serializable id) {
+        if (null == cfg.getEntityPersister(entityClass.getName())) {
+            throw new MappingException("Unknown entity: " + entityClass.getName());
+        }
+        Table table = cfg.getTable(entityClass.getName());
+        SelectNew selectNew = new SelectNew();
+        selectNew.setSelectClause("*");
+        selectNew.setFromClause(table.getName());
+        selectNew.setWhereClause(table.getIdentifierName() + " = " + id);
+        String sql = selectNew.toStatementString();
+        log.info("get entity " + entityClass.getName() + ":" + sql);
+        Cursor cursor = db.rawQuery(sql, null);
+        EntityBuilder<T> builder = new EntityBuilder<T>(entityClass, cursor);
+        List<T> queryList = builder.buildQueryList();
+        cursor.close();
+        return queryList.size() == 0 ? null : queryList.get(0);
+    }
+
+    public Object getColumnValueByColumnName(T entity, Column colmun) {
         Field field;
         try {
             field = entity.getClass().getDeclaredField(colmun.getFieldName());
@@ -103,6 +126,9 @@ public class AhibernateDao<T> {
      * @return List<T>
      */
     public List<T> queryList(T entity) {
+        if (entity != null && null == cfg.getEntityPersister(entity.getClass().getName())) {
+            throw new MappingException("Unknown entity: " + entity.getClass().getName());
+        }
         try {
             entity = entity != null ? entity : (T) getGenricTypeClass().newInstance();
         } catch (InstantiationException e) {

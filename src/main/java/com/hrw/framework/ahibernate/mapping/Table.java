@@ -10,6 +10,16 @@ import java.util.Map;
 public class Table {
     private String name;
 
+    private String identifierName;
+
+    public String getIdentifierName() {
+        return identifierName;
+    }
+
+    public void setIdentifierName(String identifierName) {
+        this.identifierName = identifierName;
+    }
+
     private Map<String, Column> columns = new HashMap<String, Column>();
 
     public String getName() {

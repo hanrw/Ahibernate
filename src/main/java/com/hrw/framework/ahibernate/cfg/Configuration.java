@@ -63,8 +63,8 @@ public class Configuration {
      * @see #configure(String)
      */
     public Configuration configure() throws AhibernateException {
-        //only for android need do this
-//        Log4jHelper.configureLog4j();
+        // only for android need do this
+        // Log4jHelper.configureLog4j();
         mLog = Logger.getLogger(Configuration.class);
         reset();
         configure("/ahibernate.cfg.xml");
@@ -157,6 +157,9 @@ public class Configuration {
                 column.setFieldName(f.getName());
                 column.setName(ar.getAnnotationName());
                 table.addColumn(f.getName(), column);
+                if (f.isAnnotationPresent(com.hrw.framework.ahibernate.annotation.Id.class)) {
+                    table.setIdentifierName(ar.getAnnotationName());
+                }
             }
         }
         return table;
