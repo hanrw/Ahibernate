@@ -63,8 +63,7 @@ public class AnnotationReader {
             if (el.isAnnotationPresent(Id.class)) {
                 Id id = el.getAnnotation(Id.class);
                 annotationName = id.name();
-            }
-            if (el.isAnnotationPresent(Column.class)) {
+            } else if (el.isAnnotationPresent(Column.class)) {
                 Column column = el.getAnnotation(Column.class);
                 annotationName = column.name();
             }

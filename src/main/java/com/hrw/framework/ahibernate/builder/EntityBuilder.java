@@ -6,11 +6,13 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import android.database.Cursor;
 
+import com.hrw.framework.ahibernate.annotation.AnnotationReader;
 import com.hrw.framework.ahibernate.annotation.Column;
 import com.hrw.framework.ahibernate.annotation.Id;
-import com.hrw.framework.ahibernate.annotation.OneToMany;
 
 public class EntityBuilder<T> {
     private Class clazz;
@@ -33,36 +35,22 @@ public class EntityBuilder<T> {
                     Annotation[] fieldAnnotations = null;
                     for (Field field : fields) {
                         field.setAccessible(true);
-                        fieldAnnotations = field.getAnnotations();
-                        if (fieldAnnotations.length != 0) {
-                            for (Annotation annotation : fieldAnnotations) {
-                                String columnName = null;
-                                if (annotation instanceof Id) {
-                                    columnName = ((Id) annotation).name();
-                                } else if (annotation instanceof Column) {
-                                    columnName = ((Column) annotation).name();
-                                } else if (annotation instanceof OneToMany) {
-                                    continue;
-                                    // Ignore
-                                }
-                                if (field.getType().getSimpleName().equals("Long")) {
-                                    field.set(
-                                            t,
-                                            cursor.getLong(cursor
-                                                    .getColumnIndexOrThrow((columnName != null && !columnName
-                                                            .equals("")) ? columnName : field
-                                                            .getName())));
-                                } else if (field.getType().getSimpleName().equals("String")) {
-                                    field.set(
-                                            t,
-                                            cursor.getString(cursor
-                                                    .getColumnIndexOrThrow((columnName != null && !columnName
-                                                            .equals("")) ? columnName : field
-                                                            .getName())));
-                                }
-
+                        AnnotationReader ar = new AnnotationReader(field);
+                        String columnName = ar.getAnnotationName();
+                        if (ar.getAnnotation(Column.class) != null
+                                || ar.getAnnotation(Id.class) != null) {
+                            Object fiedValue = null;
+                            if (isTypeOfLong(field)) {
+                                fiedValue = cursor.getLong(getColumnIndexByName(field, columnName));
+                            } else if (isTypeOfString(field)) {
+                                fiedValue = cursor
+                                            .getString(getColumnIndexByName(field, columnName));
                             }
+                            field.set(
+                                        t,
+                                        fiedValue);
                         }
+
                     }
                     queryList.add(t);
                 } catch (InstantiationException e) {
@@ -74,6 +62,24 @@ public class EntityBuilder<T> {
             }
         }
         return queryList;
+    }
+
+    private int getColumnIndexByName(Field field, String columnName) {
+        return cursor
+                .getColumnIndexOrThrow((!StringUtils.isBlank(columnName) ? columnName : field
+                        .getName()));
+    }
+
+    private boolean isTypeOfString(Field field) {
+        return getFieldTypeSimpleName(field).equals("String");
+    }
+
+    private boolean isTypeOfLong(Field field) {
+        return getFieldTypeSimpleName(field).equals("Long");
+    }
+
+    private String getFieldTypeSimpleName(Field field) {
+        return field.getType().getSimpleName();
     }
 
 }
