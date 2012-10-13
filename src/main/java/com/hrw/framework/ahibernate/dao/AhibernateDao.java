@@ -79,7 +79,8 @@ public class AhibernateDao<T> {
         }
     }
 
-    public Object get(Class entityClass, Serializable id) {
+    public Object get(Serializable id) {
+        Class<T> entityClass = getGenricTypeClass();
         if (null == cfg.getEntityPersister(entityClass.getName())) {
             throw new MappingException("Unknown entity: " + entityClass.getName());
         }

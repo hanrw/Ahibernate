@@ -70,14 +70,14 @@ public class AhibernateDaoTest {
     // test get entity.
     @Test
     public void should_return_null_when_not_found_entity() {
-        assertNull(dao.get(Demo.class, 1));
+        assertNull(dao.get(1));
     }
 
     @Test
     public void should_return_not_null_when_found_entity() {
         Demo entity = new Demo();
         assertEquals(1, dao.insert(entity));
-        assertNotNull(dao.get(Demo.class, 1));
+        assertNotNull(dao.get(1));
     }
 
     @Test
